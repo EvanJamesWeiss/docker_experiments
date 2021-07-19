@@ -41,12 +41,29 @@ class ArticleAdminController extends AbstractController
     }
 
     /**
-     * @Route("/admin/article/{id}/edit")
+     * @Route("/admin/article/{id}/edit", name="admin_article_edit")
      * @IsGranted("MANAGE", subject="article")
      */
-    public function edit(Article $article)
+    public function edit(Article $article, Request $request, EntityManagerInterface $em)
     {
-        dd($article);
+        $form = $this->createForm(ArticleFormType::class, $article);
+
+        // Only runs if this is a post request, otherwise it doesn't run.
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            $em->persist($article);
+            $em->flush();
+
+            $this->addFlash('success', 'Article Updated! Looking better than ever!');
+
+            return $this->redirectToRoute('admin_article_edit', [
+                'id' => $article->getId()
+            ]);
+        }
+
+        return $this->render('article_admin/edit.html.twig', [
+            'articleForm' => $form->createView(),
+        ]);
     }
 
     /**
