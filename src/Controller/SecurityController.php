@@ -58,6 +58,11 @@ class SecurityController extends AbstractController
                 $form['plainPassword']->getData()
             ));
 
+            // Adding additional getters and setters is a way to shortcut this,
+            if ($form['agreeTerms']->getData()) {
+                $user->agreeTerms();
+            }
+
             $em = $this->getDoctrine()->getManager();
             $em->persist($user);
             $em->flush();
